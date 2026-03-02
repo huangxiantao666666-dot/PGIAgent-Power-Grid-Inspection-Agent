@@ -99,13 +99,91 @@ python scripts/test_agent.py
 # 构建 ROS2 包
 colcon build --packages-select PGIAgent
 source install/setup.bash
-
-# 启动所有节点
-ros2 launch PGIAgent agent.launch.py
-
-# 单独启动智能体
-ros2 run PGIAgent agent_node
 ```
+
+### 4. 启动选项
+
+#### 选项1: 启动所有节点（推荐测试）
+```bash
+# 启动6个工具节点 + 智能体节点 + 任务管理器
+ros2 launch PGIAgent agent.launch.py use_simulation:=true
+
+# 真实硬件环境（禁用模拟）
+ros2 launch PGIAgent agent.launch.py use_simulation:=false
+```
+
+#### 选项2: 仅启动工具节点（用于调试）
+```bash
+# 仅启动6个工具节点
+ros2 launch PGIAgent tools.launch.py use_simulation:=true
+
+# 测试单个服务
+ros2 service call /pgi_agent/yolo_detect pgi_agent_msgs/srv/YOLODetect "{threshold: 0.8}"
+ros2 service call /pgi_agent/check_obstacle pgi_agent_msgs/srv/CheckObstacle "{}"
+ros2 service call /pgi_agent/move pgi_agent_msgs/srv/MoveCommand "{velocity: 0.2, angle: 0.0, seconds: 2.0}"
+```
+
+#### 选项3: 仅启动智能体节点（工具节点已运行）
+```bash
+# 启动智能体节点，假设工具节点已在运行
+ros2 launch PGIAgent agent_only.launch.py use_simulation:=true task:="检查变电站设备状态"
+
+# 使用自定义参数
+ros2 launch PGIAgent agent_only.launch.py \
+  use_simulation:=false \
+  task:="巡检变电站A区" \
+  max_iterations:=15
+```
+
+#### 选项4: 手动启动节点
+```bash
+# 单独启动每个节点
+ros2 run PGIAgent move_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent detection_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent vlm_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent track_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent obstacle_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent ocr_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent agent_node --ros-args -p use_simulation:=true
+```
+
+### 5. 服务测试
+```bash
+# 列出所有可用服务
+ros2 service list | grep pgi_agent
+
+# 测试移动服务
+ros2 service call /pgi_agent/move pgi_agent_msgs/srv/MoveCommand "{velocity: 0.3, angle: 30.0, seconds: 3.0}"
+
+# 测试YOLO检测
+ros2 service call /pgi_agent/yolo_detect pgi_agent_msgs/srv/YOLODetect "{threshold: 0.7}"
+
+# 测试障碍物检查
+ros2 service call /pgi_agent/check_obstacle pgi_agent_msgs/srv/CheckObstacle "{}"
+
+# 测试OCR
+ros2 service call /pgi_agent/ocr pgi_agent_msgs/srv/OCR "{}"
+
+# 测试VLM场景分析
+ros2 service call /pgi_agent/vlm_detect pgi_agent_msgs/srv/VLMDetect "{}"
+
+# 测试追踪
+ros2 service call /pgi_agent/track pgi_agent_msgs/srv/Track "{target: 'person'}"
+```
+
+### 6. 启动文件参数
+所有启动文件支持以下参数：
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `use_simulation` | `true` | 启用模拟模式（无需真实硬件） |
+| `ros_domain_id` | `0` | ROS 2 域ID，用于多机器人系统 |
+| `agent_config` | `config/agent_config.yaml` | 智能体配置文件路径 |
+| `model_config` | `config/model_config.yaml` | 模型配置文件路径 |
+| `ros_params` | `config/ros_params.yaml` | ROS 参数文件路径 |
+| `task` | `""` | 智能体初始任务（可选） |
+| `max_iterations` | `20` | 智能体规划最大迭代次数 |
+| `test_mode` | `false` | 启用测试模式（生成模拟数据） |
 
 ## 工具函数
 

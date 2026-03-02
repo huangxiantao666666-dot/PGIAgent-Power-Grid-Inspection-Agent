@@ -99,13 +99,91 @@ python scripts/test_agent.py
 # Build ROS2 package
 colcon build --packages-select PGIAgent
 source install/setup.bash
-
-# Launch all nodes
-ros2 launch PGIAgent agent.launch.py
-
-# Launch agent separately
-ros2 run PGIAgent agent_node
 ```
+
+### 4. Launch Options
+
+#### Option 1: Launch Everything (Recommended for Testing)
+```bash
+# Launch all 6 tool nodes + agent node + task manager
+ros2 launch PGIAgent agent.launch.py use_simulation:=true
+
+# For real hardware (disable simulation)
+ros2 launch PGIAgent agent.launch.py use_simulation:=false
+```
+
+#### Option 2: Launch Tools Only (For Debugging)
+```bash
+# Launch only the 6 tool nodes
+ros2 launch PGIAgent tools.launch.py use_simulation:=true
+
+# Test individual services
+ros2 service call /pgi_agent/yolo_detect pgi_agent_msgs/srv/YOLODetect "{threshold: 0.8}"
+ros2 service call /pgi_agent/check_obstacle pgi_agent_msgs/srv/CheckObstacle "{}"
+ros2 service call /pgi_agent/move pgi_agent_msgs/srv/MoveCommand "{velocity: 0.2, angle: 0.0, seconds: 2.0}"
+```
+
+#### Option 3: Launch Agent Only (When Tools are Already Running)
+```bash
+# Launch agent node assuming tools are already running
+ros2 launch PGIAgent agent_only.launch.py use_simulation:=true task:="检查变电站设备状态"
+
+# With custom parameters
+ros2 launch PGIAgent agent_only.launch.py \
+  use_simulation:=false \
+  task:="巡检变电站A区" \
+  max_iterations:=15
+```
+
+#### Option 4: Manual Node Startup
+```bash
+# Start each node individually
+ros2 run PGIAgent move_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent detection_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent vlm_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent track_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent obstacle_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent ocr_node --ros-args -p use_simulation:=true
+ros2 run PGIAgent agent_node --ros-args -p use_simulation:=true
+```
+
+### 5. Service Testing
+```bash
+# List all available services
+ros2 service list | grep pgi_agent
+
+# Test move service
+ros2 service call /pgi_agent/move pgi_agent_msgs/srv/MoveCommand "{velocity: 0.3, angle: 30.0, seconds: 3.0}"
+
+# Test YOLO detection
+ros2 service call /pgi_agent/yolo_detect pgi_agent_msgs/srv/YOLODetect "{threshold: 0.7}"
+
+# Test obstacle check
+ros2 service call /pgi_agent/check_obstacle pgi_agent_msgs/srv/CheckObstacle "{}"
+
+# Test OCR
+ros2 service call /pgi_agent/ocr pgi_agent_msgs/srv/OCR "{}"
+
+# Test VLM scene analysis
+ros2 service call /pgi_agent/vlm_detect pgi_agent_msgs/srv/VLMDetect "{}"
+
+# Test tracking
+ros2 service call /pgi_agent/track pgi_agent_msgs/srv/Track "{target: 'person'}"
+```
+
+### 6. Launch File Parameters
+All launch files support the following parameters:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `use_simulation` | `true` | Enable simulation mode (no real hardware required) |
+| `ros_domain_id` | `0` | ROS 2 domain ID for multi-robot systems |
+| `agent_config` | `config/agent_config.yaml` | Agent configuration file path |
+| `model_config` | `config/model_config.yaml` | Model configuration file path |
+| `ros_params` | `config/ros_params.yaml` | ROS parameters file path |
+| `task` | `""` | Initial task for the agent (optional) |
+| `max_iterations` | `20` | Maximum iterations for agent planning |
+| `test_mode` | `false` | Enable test mode (generates simulated data) |
 
 ## Tool Functions
 

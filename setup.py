@@ -29,19 +29,29 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 工具节点
+            # 工具节点（6个核心节点）
             'move_node = PGIAgent.nodes.move_node:main',
-            'yolo_detect_node = PGIAgent.nodes.yolo_detect_node:main',
-            'vlm_detect_node = PGIAgent.nodes.vlm_detect_node:main',
+            'detection_node = PGIAgent.nodes.detection_node:main',
+            'vlm_node = PGIAgent.nodes.vlm_node:main',
             'track_node = PGIAgent.nodes.track_node:main',
-            'obstacle_check_node = PGIAgent.nodes.obstacle_check_node:main',
+            'obstacle_node = PGIAgent.nodes.obstacle_node:main',
             'ocr_node = PGIAgent.nodes.ocr_node:main',
-            'agent_bridge_node = PGIAgent.nodes.agent_bridge_node:main',
-            # 现有节点
-            'perception_node = PGIAgent.detection_node:main',
-            'pid_control_node = PGIAgent.pid_control_node:main',
-            # 智能体启动脚本
+            
+            # 智能体节点
+            'agent_node = PGIAgent.agent.agent_node:main',
+            'task_manager_node = PGIAgent.agent.task_manager_node:main',
+            
+            # 辅助节点
+            'service_tester_node = PGIAgent.scripts.service_tester:main',
+            'web_interface_node = PGIAgent.scripts.web_interface:main',
+            
+            # 测试脚本
+            'test_agent = PGIAgent.scripts.test_agent:main',
+            'test_tools = PGIAgent.scripts.test_tools:main',
+            
+            # 工具脚本
             'agent_runner = PGIAgent.scripts.agent_runner:main',
+            'model_converter = PGIAgent.scripts.model_converter:main',
         ],
     },
 )
