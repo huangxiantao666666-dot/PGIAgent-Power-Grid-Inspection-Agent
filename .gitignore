@@ -228,16 +228,18 @@ log/
 
 # Debug images
 debug_images/
+
+# 忽略所有图片
 *.jpg
 *.jpeg
 *.png
 *.bmp
 *.tiff
 
-!images/
-!assets/img/
-!docs/images/
-
+# 但保留指定目录的所有图片
+!images/**/*
+!assets/img/**/*
+!docs/images/**/*
 # Task history
 task_history/
 
