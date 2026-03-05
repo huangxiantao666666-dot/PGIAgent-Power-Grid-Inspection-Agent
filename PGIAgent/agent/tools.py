@@ -30,19 +30,19 @@ class ToolManager:
     def _init_ros_clients(self):
         """初始化ROS服务客户端"""
         from std_srvs.srv import Trigger
-        from pgi_agent_msgs.srv import (
+        from PGIAgent.srv import (
             MoveCommand, YOLODetect, VLMDetect, 
             Track, CheckObstacle, OCR
         )
         
         # 创建服务客户端
         service_types = {
-            self.config.move_service: MoveCommand,
-            self.config.yolo_service: YOLODetect,
-            self.config.vlm_service: VLMDetect,
-            self.config.track_service: Track,
-            self.config.obstacle_service: CheckObstacle,
-            self.config.ocr_service: OCR,
+            self.service_name = '/pgi_agent/move',           # MoveCommand 对应的服务实例
+            self.service_name = '/pgi_agent/yolo_detect',    # YOLODetect 对应的服务实例
+            self.service_name = '/pgi_agent/vlm_detect',     # VLMDetect 对应的服务实例
+            self.service_name = '/pgi_agent/track',          # Track 对应的服务实例
+            self.service_name = '/pgi_agent/check_obstacle', # CheckObstacle 对应的服务实例
+            self.service_name = '/pgi_agent/ocr'            # OCR 对应的服务实例
         }
         
         for service_name, service_type in service_types.items():
